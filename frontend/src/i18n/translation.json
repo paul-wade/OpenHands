@@ -1183,6 +1183,22 @@
         "de": "Änderungen zum PR pushen",
         "uk": "Надіслати зміти в PR"
     },
+    "ACTION$CONTINUE": {
+        "en": "Continue",
+        "ja": "続行",
+        "zh-CN": "继续",
+        "zh-TW": "繼續",
+        "ko-KR": "계속",
+        "no": "Fortsett",
+        "it": "Continua",
+        "pt": "Continuar",
+        "es": "Continuar",
+        "ar": "متابعة",
+        "fr": "Continuer",
+        "tr": "Devam Et",
+        "de": "Fortfahren",
+        "uk": "Продовжити"
+    },
     "ANALYTICS$TITLE": {
         "en": "Your Privacy Preferences",
         "ja": "プライバシー設定",
