@@ -9,7 +9,7 @@ mkdir -p ./workspace
 echo "📦 Building and starting OpenHands container..."
 echo "This will:"
 echo "  - Build the Docker image with your Continue button changes"
-echo "  - Start OpenHands on http://localhost:3000"
+echo "  - Start OpenHands on http://localhost:3001"
 echo "  - Create a persistent workspace in ./workspace"
 echo ""
 
@@ -18,7 +18,7 @@ docker compose -f docker-compose.test.yml up --build
 
 echo ""
 echo "🎯 To test the Continue button:"
-echo "1. Open http://localhost:3000 in your browser"
+echo "1. Open http://localhost:3001 in your browser"
 echo "2. Start a conversation with an agent"
 echo "3. Trigger rate limiting (make many rapid requests)"
 echo "4. Look for the Continue button when rate limited"

@@ -17,13 +17,13 @@ Or use the helper script:
 ## What This Does
 
 1. **Builds** a Docker image with your Continue button changes
-2. **Starts** OpenHands on http://localhost:3000
+2. **Starts** OpenHands on http://localhost:3001
 3. **Creates** a workspace folder for testing
 4. **Persists** settings between runs
 
 ## Testing the Continue Button
 
-1. Open http://localhost:3000 in your browser
+1. Open http://localhost:3001 in your browser
 2. Configure an LLM provider (OpenAI, Anthropic, etc.)
 3. Start a conversation with the agent
 4. **Trigger rate limiting** by:
@@ -44,7 +44,7 @@ docker compose -f docker-compose.test.yml down
 
 ## Troubleshooting
 
-- **Port 3000 busy**: Change the port in docker-compose.test.yml from "3000:3000" to "3001:3000"
+- **Port 3001 busy**: Change the port in docker-compose.test.yml from "3001:3000" to "3002:3000"
 - **Docker issues**: Make sure Docker Desktop is running
 - **Build errors**: Try `docker system prune` to clean up old images
 
