@@ -8,15 +8,18 @@ import { CopyToClipboardButton } from "#/components/shared/buttons/copy-to-clipb
 import { anchor } from "../markdown/anchor";
 import { OpenHandsSourceType } from "#/types/core/base";
 import { paragraph } from "../markdown/paragraph";
+import { Timestamp } from "#/components/shared/timestamp";
 
 interface ChatMessageProps {
   type: OpenHandsSourceType;
   message: string;
+  timestamp?: string;
 }
 
 export function ChatMessage({
   type,
   message,
+  timestamp,
   children,
 }: React.PropsWithChildren<ChatMessageProps>) {
   const [isHovering, setIsHovering] = React.useState(false);
@@ -59,6 +62,8 @@ export function ChatMessage({
         onClick={handleCopyToClipboard}
         mode={isCopy ? "copied" : "copy"}
       />
+
+      {/* Message content */}
       <div className="text-sm break-words">
         <Markdown
           components={{
@@ -73,6 +78,19 @@ export function ChatMessage({
           {message}
         </Markdown>
       </div>
+
+      {/* Timestamp */}
+      {timestamp && (
+        <div
+          className={cn(
+            "flex",
+            type === "user" ? "justify-end" : "justify-start",
+          )}
+        >
+          <Timestamp timestamp={timestamp} showOnHover className="mt-1" />
+        </div>
+      )}
+
       {children}
     </article>
   );
