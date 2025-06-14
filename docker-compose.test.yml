@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  openhands:
+    build:
+      context: ./
+      dockerfile: ./containers/app/Dockerfile
+    image: openhands:continue-button-test
+    container_name: openhands-continue-test
+    environment:
+      - SANDBOX_RUNTIME_CONTAINER_IMAGE=docker.all-hands.dev/all-hands-ai/runtime:0.41-nikolaik
+      - LOG_ALL_EVENTS=true
+      - WORKSPACE_MOUNT_PATH=/workspace2
+    ports:
+      - "3001:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./workspace:/opt/workspace_base
+      - openhands-state:/.openhands-state
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+
+volumes:
+  openhands-state:
+    driver: local
