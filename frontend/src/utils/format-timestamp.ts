@@ -1,13 +1,10 @@
-import React from "react";
-
-/**
- * Formats a timestamp for display in the UI
- */
-export function formatTimestamp(timestamp: string): {
+export interface FormattedTimestamp {
   relative: string;
   absolute: string;
   date: Date;
-} {
+}
+
+export function formatTimestamp(timestamp: string): FormattedTimestamp {
   const date = new Date(timestamp);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
@@ -28,32 +25,23 @@ export function formatTimestamp(timestamp: string): {
     relative = date.toLocaleDateString();
   }
 
-  const absolute = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+  const absolute = date.toLocaleString();
 
   return { relative, absolute, date };
 }
 
-/**
- * Hook to get a formatted timestamp that updates every minute
- */
-export function useFormattedTimestamp(timestamp: string) {
-  const [formatted, setFormatted] = React.useState(() =>
-    formatTimestamp(timestamp),
-  );
+export function formatDuration(startTime: string, endTime: string): string {
+  const start = new Date(startTime);
+  const end = new Date(endTime);
+  const diffMs = end.getTime() - start.getTime();
 
-  React.useEffect(() => {
-    const updateTimestamp = () => {
-      setFormatted(formatTimestamp(timestamp));
-    };
-
-    // Update immediately
-    updateTimestamp();
-
-    // Update every minute
-    const interval = setInterval(updateTimestamp, 60000);
-
-    return () => clearInterval(interval);
-  }, [timestamp]);
-
-  return formatted;
+  if (diffMs < 1000) {
+    return `${diffMs}ms`;
+  }
+  if (diffMs < 60000) {
+    return `${(diffMs / 1000).toFixed(1)}s`;
+  }
+  const minutes = Math.floor(diffMs / 60000);
+  const seconds = Math.floor((diffMs % 60000) / 1000);
+  return `${minutes}m ${seconds}s`;
 }
