@@ -7,22 +7,39 @@ import ArrowDown from "#/icons/angle-down-solid.svg?react";
 import ArrowUp from "#/icons/angle-up-solid.svg?react";
 import { SuccessIndicator } from "./success-indicator";
 import { ObservationResultStatus } from "./event-content-helpers/get-observation-result";
+import { Timestamp } from "#/components/shared/timestamp";
 
 interface GenericEventMessageProps {
   title: React.ReactNode;
   details: string | React.ReactNode;
   success?: ObservationResultStatus;
+  timestamp?: string;
+  responseTime?: string;
 }
 
 export function GenericEventMessage({
   title,
   details,
   success,
+  timestamp,
+  responseTime,
 }: GenericEventMessageProps) {
   const [showDetails, setShowDetails] = React.useState(false);
 
   return (
     <div className="flex flex-col gap-2 border-l-2 pl-2 my-2 py-2 border-neutral-300 text-sm w-full">
+      {/* Timestamp for action events - always visible */}
+      {timestamp && (
+        <div className="flex justify-start">
+          <Timestamp
+            timestamp={timestamp}
+            responseTime={responseTime}
+            alwaysVisible
+            className="text-xs"
+          />
+        </div>
+      )}
+
       <div className="flex items-center justify-between font-bold text-neutral-300">
         <div>
           {title}

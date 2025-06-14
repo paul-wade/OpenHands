@@ -8,15 +8,20 @@ import { CopyToClipboardButton } from "#/components/shared/buttons/copy-to-clipb
 import { anchor } from "../markdown/anchor";
 import { OpenHandsSourceType } from "#/types/core/base";
 import { paragraph } from "../markdown/paragraph";
+import { Timestamp } from "#/components/shared/timestamp";
 
 interface ChatMessageProps {
   type: OpenHandsSourceType;
   message: string;
+  timestamp?: string;
+  responseTime?: string; // For AI responses, timestamp of the user message that triggered this response
 }
 
 export function ChatMessage({
   type,
   message,
+  timestamp,
+  responseTime,
   children,
 }: React.PropsWithChildren<ChatMessageProps>) {
   const [isHovering, setIsHovering] = React.useState(false);
@@ -47,7 +52,7 @@ export function ChatMessage({
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       className={cn(
-        "rounded-xl relative",
+        "rounded-xl relative group",
         "flex flex-col gap-2",
         type === "user" && " max-w-[305px] p-4 bg-tertiary self-end",
         type === "agent" && "mt-6 max-w-full bg-transparent",
@@ -59,6 +64,24 @@ export function ChatMessage({
         onClick={handleCopyToClipboard}
         mode={isCopy ? "copied" : "copy"}
       />
+
+      {/* Timestamp - always visible for better UX */}
+      {timestamp && (
+        <div
+          className={cn(
+            "flex",
+            type === "user" ? "justify-end" : "justify-start",
+          )}
+        >
+          <Timestamp
+            timestamp={timestamp}
+            responseTime={responseTime}
+            alwaysVisible
+            className="mb-1"
+          />
+        </div>
+      )}
+
       <div className="text-sm break-words">
         <Markdown
           components={{
