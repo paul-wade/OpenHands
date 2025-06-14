@@ -14,12 +14,14 @@ interface ChatMessageProps {
   type: OpenHandsSourceType;
   message: string;
   timestamp?: string;
+  responseTime?: string; // For AI responses, timestamp of the user message that triggered this response
 }
 
 export function ChatMessage({
   type,
   message,
   timestamp,
+  responseTime,
   children,
 }: React.PropsWithChildren<ChatMessageProps>) {
   const [isHovering, setIsHovering] = React.useState(false);
@@ -50,7 +52,7 @@ export function ChatMessage({
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       className={cn(
-        "rounded-xl relative",
+        "rounded-xl relative group",
         "flex flex-col gap-2",
         type === "user" && " max-w-[305px] p-4 bg-tertiary self-end",
         type === "agent" && "mt-6 max-w-full bg-transparent",
@@ -63,7 +65,23 @@ export function ChatMessage({
         mode={isCopy ? "copied" : "copy"}
       />
 
-      {/* Message content */}
+      {/* Timestamp - always visible for better UX */}
+      {timestamp && (
+        <div
+          className={cn(
+            "flex",
+            type === "user" ? "justify-end" : "justify-start",
+          )}
+        >
+          <Timestamp
+            timestamp={timestamp}
+            responseTime={responseTime}
+            alwaysVisible
+            className="mb-1"
+          />
+        </div>
+      )}
+
       <div className="text-sm break-words">
         <Markdown
           components={{
@@ -78,18 +96,6 @@ export function ChatMessage({
           {message}
         </Markdown>
       </div>
-
-      {/* Timestamp */}
-      {timestamp && (
-        <div
-          className={cn(
-            "flex",
-            type === "user" ? "justify-end" : "justify-start",
-          )}
-        >
-          <Timestamp timestamp={timestamp} showOnHover className="mt-1" />
-        </div>
-      )}
 
       {children}
     </article>
