@@ -114,7 +114,7 @@ export function ChatInterface() {
       uploadedFiles.length > 0 ? `${content}\n\n${filePrompt}` : content;
 
     send(createChatMessage(prompt, imageUrls, uploadedFiles, timestamp));
-    setOptimisticUserMessage(content);
+    setOptimisticUserMessage(content, timestamp);
     setMessageToSend(null);
   };
 

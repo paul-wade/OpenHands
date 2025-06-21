@@ -40,7 +40,7 @@ export function TaskCard({ task }: TaskCardProps) {
 
   const handleLaunchConversation = () => {
     const repo = getRepo(task.repo, task.git_provider);
-    setOptimisticUserMessage(t("TASK$ADDRESSING_TASK"));
+    setOptimisticUserMessage(t("TASK$ADDRESSING_TASK"), new Date().toISOString());
 
     return createConversation({
       selectedRepository: repo,

@@ -46,8 +46,8 @@ export const Messages: React.FC<MessagesProps> = React.memo(
         {optimisticUserMessage && (
           <ChatMessage
             type="user"
-            message={optimisticUserMessage}
-            timestamp={new Date().toISOString()}
+            message={optimisticUserMessage.message}
+            timestamp={optimisticUserMessage.timestamp}
           />
         )}
       </>

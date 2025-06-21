@@ -1,15 +1,20 @@
 import { useQueryClient } from "@tanstack/react-query";
 
+interface OptimisticUserMessage {
+  message: string;
+  timestamp: string;
+}
+
 export const useOptimisticUserMessage = () => {
   const queryKey = ["optimistic_user_message"] as const;
   const queryClient = useQueryClient();
 
-  const setOptimisticUserMessage = (message: string) => {
-    queryClient.setQueryData<string>(queryKey, message);
+  const setOptimisticUserMessage = (message: string, timestamp: string) => {
+    queryClient.setQueryData<OptimisticUserMessage>(queryKey, { message, timestamp });
   };
 
   const getOptimisticUserMessage = () =>
-    queryClient.getQueryData<string>(queryKey);
+    queryClient.getQueryData<OptimisticUserMessage>(queryKey);
 
   const removeOptimisticUserMessage = () => {
     queryClient.removeQueries({ queryKey });
