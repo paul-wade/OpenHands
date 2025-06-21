@@ -31,14 +31,15 @@ export function Timestamp({
     setTimestampData(formatTimestamp(timestamp));
   }, [timestamp]);
 
-  // Set up interval to update every minute
+  // Set up interval to update timestamps
   useEffect(() => {
     const updateTime = () => {
       setTimestampData(formatTimestamp(timestampRef.current));
     };
 
-    // Set up interval to update every minute
-    const interval = setInterval(updateTime, 60000);
+    // Update every 5 seconds to show seconds granularity for recent messages
+    // This is a good balance between accuracy and performance
+    const interval = setInterval(updateTime, 5000);
 
     return () => clearInterval(interval);
   }, []); // Empty dependency array so interval runs continuously
