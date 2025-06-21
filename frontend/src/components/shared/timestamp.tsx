@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { cn } from "#/utils/utils";
 import {
   formatTimestamp,
@@ -23,21 +23,25 @@ export function Timestamp({
   const [timestampData, setTimestampData] = useState(
     formatTimestamp(timestamp),
   );
+  const timestampRef = useRef(timestamp);
 
-  // Update relative time every minute
+  // Keep ref updated with current timestamp
+  useEffect(() => {
+    timestampRef.current = timestamp;
+    setTimestampData(formatTimestamp(timestamp));
+  }, [timestamp]);
+
+  // Set up interval to update every minute
   useEffect(() => {
     const updateTime = () => {
-      setTimestampData(formatTimestamp(timestamp));
+      setTimestampData(formatTimestamp(timestampRef.current));
     };
-
-    // Update immediately
-    updateTime();
 
     // Set up interval to update every minute
     const interval = setInterval(updateTime, 60000);
 
     return () => clearInterval(interval);
-  }, [timestamp]);
+  }, []); // Empty dependency array so interval runs continuously
 
   const duration = responseTime
     ? formatDuration(responseTime, timestamp)
