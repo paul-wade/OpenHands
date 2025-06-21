@@ -1,97 +1,98 @@
 import { describe, it, expect } from "vitest";
 import { renderHook } from "@testing-library/react";
 import { useResponseTime } from "./use-response-time";
-import { OpenHandsAction } from "#/types/core/actions";
-import { OpenHandsObservation } from "#/types/core/observations";
+import { UserMessageAction, AssistantMessageAction } from "#/types/core/actions";
+import { CommandObservation } from "#/types/core/observations";
 
 // Mock events for testing
-const createUserMessage = (id: string, timestamp: string): OpenHandsAction => ({
+const createUserMessage = (id: number, timestamp: string): UserMessageAction => ({
   id,
   timestamp,
   source: "user",
   action: "message",
-  args: { content: "test message" },
+  message: "test message",
+  args: { 
+    content: "test message",
+    image_urls: [],
+    file_urls: []
+  },
 });
 
-const createAgentMessage = (id: string, timestamp: string): OpenHandsAction => ({
+const createAgentMessage = (id: number, timestamp: string): AssistantMessageAction => ({
   id,
   timestamp,
   source: "agent",
-  action: "message",
+  action: "message", 
   message: "test response",
+  args: { 
+    thought: "thinking about response",
+    image_urls: [],
+    file_urls: [],
+    wait_for_response: false
+  },
+});
+
+const createObservation = (id: number, timestamp: string, cause: number): CommandObservation => ({
+  id,
+  timestamp,
+  source: "agent",
+  observation: "run",
+  message: "command output",
+  cause,
+  content: "command executed",
+  extras: {
+    command: "test command",
+    metadata: {}
+  },
 });
 
 describe("useResponseTime", () => {
   it("should return undefined for user messages", () => {
-    const userMessage = createUserMessage("1", "2024-01-01T12:00:00.000Z");
+    const userMessage = createUserMessage(1, "2023-01-01T10:00:00Z");
     const allEvents = [userMessage];
 
-    const { result } = renderHook(() =>
-      useResponseTime(userMessage, allEvents),
-    );
+    const { result } = renderHook(() => useResponseTime(userMessage, allEvents));
 
     expect(result.current).toBeUndefined();
   });
 
   it("should return timestamp of most recent user message for agent messages", () => {
-    const userMessage1 = createUserMessage("1", "2024-01-01T12:00:00.000Z");
-    const userMessage2 = createUserMessage("2", "2024-01-01T12:05:00.000Z");
-    const agentMessage = createAgentMessage("3", "2024-01-01T12:06:00.000Z");
-    
-    const allEvents = [userMessage1, userMessage2, agentMessage];
+    const userMessage = createUserMessage(1, "2023-01-01T10:00:00Z");
+    const agentMessage = createAgentMessage(2, "2023-01-01T10:01:00Z");
+    const allEvents = [userMessage, agentMessage];
 
-    const { result } = renderHook(() =>
-      useResponseTime(agentMessage, allEvents),
-    );
+    const { result } = renderHook(() => useResponseTime(agentMessage, allEvents));
 
-    expect(result.current).toBe("2024-01-01T12:05:00.000Z");
+    expect(result.current).toBe("2023-01-01T10:00:00Z");
   });
 
   it("should return undefined if no user message found before agent message", () => {
-    const agentMessage1 = createAgentMessage("1", "2024-01-01T12:00:00.000Z");
-    const agentMessage2 = createAgentMessage("2", "2024-01-01T12:05:00.000Z");
-    
-    const allEvents = [agentMessage1, agentMessage2];
+    const agentMessage = createAgentMessage(1, "2023-01-01T10:00:00Z");
+    const allEvents = [agentMessage];
 
-    const { result } = renderHook(() =>
-      useResponseTime(agentMessage2, allEvents),
-    );
+    const { result } = renderHook(() => useResponseTime(agentMessage, allEvents));
 
     expect(result.current).toBeUndefined();
   });
 
   it("should return undefined if current event is not found in allEvents", () => {
-    const userMessage = createUserMessage("1", "2024-01-01T12:00:00.000Z");
-    const agentMessage = createAgentMessage("2", "2024-01-01T12:05:00.000Z");
-    
+    const userMessage = createUserMessage(1, "2023-01-01T10:00:00Z");
+    const agentMessage = createAgentMessage(2, "2023-01-01T10:01:00Z");
     const allEvents = [userMessage];
 
-    const { result } = renderHook(() =>
-      useResponseTime(agentMessage, allEvents),
-    );
+    const { result } = renderHook(() => useResponseTime(agentMessage, allEvents));
 
     expect(result.current).toBeUndefined();
   });
 
   it("should find user message even with other events in between", () => {
-    const userMessage = createUserMessage("1", "2024-01-01T12:00:00.000Z");
-    const agentAction = createAgentMessage("2", "2024-01-01T12:01:00.000Z");
-    const observation: OpenHandsObservation = {
-      id: "3",
-      timestamp: "2024-01-01T12:02:00.000Z",
-      source: "agent",
-      observation: "run",
-      content: "Command executed",
-      cause: "2",
-    };
-    const agentMessage = createAgentMessage("4", "2024-01-01T12:03:00.000Z");
-    
-    const allEvents = [userMessage, agentAction, observation, agentMessage];
+    const userMessage = createUserMessage(1, "2023-01-01T10:00:00Z");
+    const observation = createObservation(2, "2023-01-01T10:00:30Z", 1);
+    const agentMessage = createAgentMessage(3, "2023-01-01T10:01:00Z");
+    const allEvents = [userMessage, observation, agentMessage];
 
-    const { result } = renderHook(() =>
-      useResponseTime(agentMessage, allEvents),
-    );
+    const { result } = renderHook(() => useResponseTime(agentMessage, allEvents));
 
-    expect(result.current).toBe("2024-01-01T12:00:00.000Z");
+    expect(result.current).toBe("2023-01-01T10:00:00Z");
   });
 });
