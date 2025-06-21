@@ -39,11 +39,16 @@ export const Messages: React.FC<MessagesProps> = React.memo(
             hasObservationPair={actionHasObservationPair(message)}
             isAwaitingUserConfirmation={isAwaitingUserConfirmation}
             isLastMessage={messages.length - 1 === index}
+            allEvents={messages}
           />
         ))}
 
         {optimisticUserMessage && (
-          <ChatMessage type="user" message={optimisticUserMessage} />
+          <ChatMessage
+            type="user"
+            message={optimisticUserMessage}
+            timestamp={new Date().toISOString()}
+          />
         )}
       </>
     );

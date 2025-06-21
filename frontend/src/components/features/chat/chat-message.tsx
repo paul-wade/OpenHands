@@ -8,15 +8,20 @@ import { CopyToClipboardButton } from "#/components/shared/buttons/copy-to-clipb
 import { anchor } from "../markdown/anchor";
 import { OpenHandsSourceType } from "#/types/core/base";
 import { paragraph } from "../markdown/paragraph";
+import { Timestamp } from "#/components/shared/timestamp";
 
 interface ChatMessageProps {
   type: OpenHandsSourceType;
   message: string;
+  timestamp?: string;
+  responseTime?: string; // For AI responses, timestamp of the user message that triggered this response
 }
 
 export function ChatMessage({
   type,
   message,
+  timestamp,
+  responseTime,
   children,
 }: React.PropsWithChildren<ChatMessageProps>) {
   const [isHovering, setIsHovering] = React.useState(false);
@@ -74,6 +79,13 @@ export function ChatMessage({
         </Markdown>
       </div>
       {children}
+
+      {/* Timestamp in bottom right */}
+      {timestamp && (
+        <div className="flex justify-end mt-1">
+          <Timestamp timestamp={timestamp} responseTime={responseTime} />
+        </div>
+      )}
     </article>
   );
 }

@@ -25,6 +25,7 @@ import { LikertScale } from "../feedback/likert-scale";
 
 import { useConfig } from "#/hooks/query/use-config";
 import { useFeedbackExists } from "#/hooks/query/use-feedback-exists";
+import { useResponseTime } from "#/hooks/use-response-time";
 
 const hasThoughtProperty = (
   obj: Record<string, unknown>,
@@ -35,6 +36,7 @@ interface EventMessageProps {
   hasObservationPair: boolean;
   isAwaitingUserConfirmation: boolean;
   isLastMessage: boolean;
+  allEvents?: (OpenHandsAction | OpenHandsObservation)[]; // For calculating response times
 }
 
 export function EventMessage({
@@ -42,11 +44,15 @@ export function EventMessage({
   hasObservationPair,
   isAwaitingUserConfirmation,
   isLastMessage,
+  allEvents = [],
 }: EventMessageProps) {
   const shouldShowConfirmationButtons =
     isLastMessage && event.source === "agent" && isAwaitingUserConfirmation;
 
   const { data: config } = useConfig();
+
+  // Calculate response time for agent messages
+  const responseTime = useResponseTime(event, allEvents);
 
   // Use our query hook to check if feedback exists and get rating/reason
   const {
@@ -65,7 +71,14 @@ export function EventMessage({
 
   if (hasObservationPair && isOpenHandsAction(event)) {
     if (hasThoughtProperty(event.args)) {
-      return <ChatMessage type="agent" message={event.args.thought} />;
+      return (
+        <ChatMessage
+          type="agent"
+          message={event.args.thought}
+          timestamp={event.timestamp}
+          responseTime={responseTime}
+        />
+      );
     }
     return null;
   }
@@ -79,7 +92,12 @@ export function EventMessage({
   if (isFinishAction(event)) {
     return (
       <>
-        <ChatMessage type="agent" message={getEventContent(event).details} />
+        <ChatMessage
+          type="agent"
+          message={getEventContent(event).details}
+          timestamp={event.timestamp}
+          responseTime={responseTime}
+        />
         {showLikertScale && (
           <LikertScale
             eventId={event.id}
@@ -96,7 +114,12 @@ export function EventMessage({
     const message = parseMessageFromEvent(event);
 
     return (
-      <ChatMessage type={event.source} message={message}>
+      <ChatMessage
+        type={event.source}
+        message={message}
+        timestamp={event.timestamp}
+        responseTime={responseTime}
+      >
         {event.args.image_urls && event.args.image_urls.length > 0 && (
           <ImageCarousel size="small" images={event.args.image_urls} />
         )}
@@ -109,7 +132,14 @@ export function EventMessage({
   }
 
   if (isRejectObservation(event)) {
-    return <ChatMessage type="agent" message={event.content} />;
+    return (
+      <ChatMessage
+        type="agent"
+        message={event.content}
+        timestamp={event.timestamp}
+        responseTime={responseTime}
+      />
+    );
   }
 
   if (isMcpObservation(event)) {
@@ -128,7 +158,12 @@ export function EventMessage({
   return (
     <div>
       {isOpenHandsAction(event) && hasThoughtProperty(event.args) && (
-        <ChatMessage type="agent" message={event.args.thought} />
+        <ChatMessage
+          type="agent"
+          message={event.args.thought}
+          timestamp={event.timestamp}
+          responseTime={responseTime}
+        />
       )}
 
       <GenericEventMessage
