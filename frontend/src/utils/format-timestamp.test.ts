@@ -24,10 +24,16 @@ describe("formatTimestamp", () => {
     expect(result.relative).toBe("30s ago");
   });
 
-  it("should return minutes for timestamps less than 1 hour ago", () => {
-    const timestamp = "2024-01-01T11:45:00.000Z"; // 15 minutes ago
+  it("should return minutes and seconds for timestamps between 1 minute and 1 hour ago", () => {
+    const timestamp = "2024-01-01T11:58:30.000Z"; // 1 minute 30 seconds ago
     const result = formatTimestamp(timestamp);
-    expect(result.relative).toBe("15m ago");
+    expect(result.relative).toBe("1m 30s ago");
+  });
+
+  it("should return minutes and seconds for longer timestamps under 1 hour", () => {
+    const timestamp = "2024-01-01T11:45:00.000Z"; // 15 minutes ago (exactly)
+    const result = formatTimestamp(timestamp);
+    expect(result.relative).toBe("15m 0s ago");
   });
 
   it("should return hours for timestamps less than 24 hours ago", () => {

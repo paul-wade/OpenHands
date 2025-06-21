@@ -16,7 +16,7 @@ describe("Timestamp", () => {
     const timestamp = "2024-01-01T11:45:00.000Z"; // 15 minutes ago
     render(<Timestamp timestamp={timestamp} />);
     
-    expect(screen.getByText("15m ago")).toBeInTheDocument();
+    expect(screen.getByText("15m 0s ago")).toBeInTheDocument();
   });
 
   it("should show response time when provided", () => {
@@ -24,7 +24,7 @@ describe("Timestamp", () => {
     const responseTime = "2024-01-01T11:44:00.000Z"; // 1 minute response time
     render(<Timestamp timestamp={timestamp} responseTime={responseTime} />);
     
-    expect(screen.getByText(/15m ago/)).toBeInTheDocument();
+    expect(screen.getByText(/15m 0s ago/)).toBeInTheDocument();
     expect(screen.getByText(/• 1m 0s/)).toBeInTheDocument();
   });
 

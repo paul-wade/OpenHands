@@ -54,16 +54,17 @@ function formatAbbreviatedRelativeTime(timestamp: string): string {
     return "just now";
   }
 
-  // Less than 1 minute - show seconds
+  // Less than 1 minute - show seconds only
   if (diffMs < 60000) {
     const seconds = Math.floor(diffMs / 1000);
     return `${seconds}s ago`;
   }
 
-  // Less than 1 hour
+  // Less than 1 hour - show minutes and seconds for better granularity
   if (diffMs < 3600000) {
     const minutes = Math.floor(diffMs / 60000);
-    return `${minutes}m ago`;
+    const seconds = Math.floor((diffMs % 60000) / 1000);
+    return `${minutes}m ${seconds}s ago`;
   }
 
   // Less than 1 day
