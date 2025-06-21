@@ -42,16 +42,22 @@ export function formatAbsoluteTime(timestamp: string): string {
 }
 
 /**
- * Formats a timestamp into abbreviated relative time (e.g., "2m ago", "1h ago")
+ * Formats a timestamp into abbreviated relative time (e.g., "2m ago", "1h ago", "30s ago")
  */
 function formatAbbreviatedRelativeTime(timestamp: string): string {
   const now = new Date();
   const date = new Date(timestamp);
   const diffMs = now.getTime() - date.getTime();
 
-  // Less than 1 minute
-  if (diffMs < 60000) {
+  // Less than 10 seconds
+  if (diffMs < 10000) {
     return "just now";
+  }
+
+  // Less than 1 minute - show seconds
+  if (diffMs < 60000) {
+    const seconds = Math.floor(diffMs / 1000);
+    return `${seconds}s ago`;
   }
 
   // Less than 1 hour

@@ -12,10 +12,16 @@ describe("formatTimestamp", () => {
     vi.useRealTimers();
   });
 
-  it("should return 'just now' for timestamps less than 1 minute ago", () => {
-    const timestamp = "2024-01-01T11:59:30.000Z"; // 30 seconds ago
+  it("should return 'just now' for timestamps less than 10 seconds ago", () => {
+    const timestamp = "2024-01-01T11:59:55.000Z"; // 5 seconds ago
     const result = formatTimestamp(timestamp);
     expect(result.relative).toBe("just now");
+  });
+
+  it("should return seconds for timestamps between 10 seconds and 1 minute ago", () => {
+    const timestamp = "2024-01-01T11:59:30.000Z"; // 30 seconds ago
+    const result = formatTimestamp(timestamp);
+    expect(result.relative).toBe("30s ago");
   });
 
   it("should return minutes for timestamps less than 1 hour ago", () => {
