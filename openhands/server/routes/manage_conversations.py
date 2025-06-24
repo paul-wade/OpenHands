@@ -297,6 +297,55 @@ async def delete_conversation(
     return True
 
 
+@app.post('/conversations/{conversation_id}/reset-history')
+async def reset_conversation_history(
+    conversation_id: str,
+    user_id: str | None = Depends(get_user_id),
+) -> JSONResponse:
+    """Reset the conversation history while preserving the runtime environment.
+
+    This endpoint clears all events from the conversation's event stream,
+    effectively giving a clean chat history while maintaining the runtime
+    environment and any work done in it.
+    """
+    conversation_store = await ConversationStoreImpl.get_instance(config, user_id)
+    try:
+        # Verify the conversation exists
+        await conversation_store.get_metadata(conversation_id)
+    except FileNotFoundError:
+        return JSONResponse(
+            content={'error': 'Conversation not found'},
+            status_code=status.HTTP_404_NOT_FOUND,
+        )
+
+    # Check if there's an active session
+    conversation = await conversation_manager.attach_to_conversation(
+        conversation_id, user_id
+    )
+
+    if conversation:
+        # Clear the event history
+        conversation.event_stream.clear_history()
+
+        # Update conversation metadata to reflect the reset
+        metadata = await conversation_store.get_metadata(conversation_id)
+        metadata.last_updated_at = datetime.now(timezone.utc)
+        await conversation_store.save_metadata(metadata)
+
+        # Detach from the conversation
+        await conversation_manager.detach_from_conversation(conversation)
+
+        return JSONResponse(
+            content={'status': 'success', 'message': 'Conversation history cleared'},
+            status_code=status.HTTP_200_OK,
+        )
+    else:
+        return JSONResponse(
+            content={'error': 'Could not attach to conversation'},
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
 @app.get('/conversations/{conversation_id}/remember_prompt')
 async def get_prompt(
     event_id: int,

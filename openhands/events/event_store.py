@@ -173,3 +173,39 @@ class EventStore(EventStoreABC):
         except ValueError:
             logger.warning(f'get id from filename ({filename}) failed.')
             return -1
+
+    def clear_events(self) -> None:
+        """Clear all events from the event store while preserving the session.
+
+        This method removes all event files and resets the event counter,
+        effectively giving a clean chat history while maintaining the runtime.
+        """
+        try:
+            # Get the events directory
+            events_dir = get_conversation_events_dir(self.sid, self.user_id)
+
+            # List all event files
+            event_files = self.file_store.list(events_dir)
+
+            # Delete each event file
+            for event_file in event_files:
+                if event_file.endswith('.json'):
+                    self.file_store.delete(f'{events_dir}/{event_file}')
+
+            # Also clear any cache files
+            cache_dir = f'{get_conversation_dir(self.sid, self.user_id)}event_cache'
+            try:
+                cache_files = self.file_store.list(cache_dir)
+                for cache_file in cache_files:
+                    self.file_store.delete(f'{cache_dir}/{cache_file}')
+            except FileNotFoundError:
+                # Cache directory might not exist
+                pass
+
+            # Reset the event counter
+            self.cur_id = 0
+
+            logger.info(f'Cleared all events for session {self.sid}')
+        except FileNotFoundError:
+            logger.warning(f'No events found to clear for session {self.sid}')
+            self.cur_id = 0

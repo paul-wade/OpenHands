@@ -219,6 +219,29 @@ class EventStream(EventStore):
     def update_secrets(self, secrets: dict[str, str]) -> None:
         self.secrets.update(secrets)
 
+    def clear_history(self) -> None:
+        """Clear the event history while preserving the session and subscribers.
+
+        This method clears all stored events and resets the write cache,
+        effectively giving a clean chat history while maintaining the runtime
+        and active subscriptions.
+        """
+        # Clear the stored events
+        self.clear_events()
+
+        # Clear the write page cache
+        self._write_page_cache = []
+
+        # Clear the queue of pending events
+        with self._lock:
+            while not self._queue.empty():
+                try:
+                    self._queue.get_nowait()
+                except queue.Empty:
+                    break
+
+        logger.info(f'Cleared event history for session {self.sid}')
+
     def _replace_secrets(self, data: dict[str, Any]) -> dict[str, Any]:
         for key in data:
             if isinstance(data[key], dict):

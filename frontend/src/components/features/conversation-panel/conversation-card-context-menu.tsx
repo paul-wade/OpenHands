@@ -9,6 +9,7 @@ interface ConversationCardContextMenuProps {
   onClose: () => void;
   onDelete?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onEdit?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  onResetHistory?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onDisplayCost?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onShowAgentTools?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   onShowMicroagents?: (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -20,6 +21,7 @@ export function ConversationCardContextMenu({
   onClose,
   onDelete,
   onEdit,
+  onResetHistory,
   onDisplayCost,
   onShowAgentTools,
   onShowMicroagents,
@@ -47,6 +49,14 @@ export function ConversationCardContextMenu({
       {onEdit && (
         <ContextMenuListItem testId="edit-button" onClick={onEdit}>
           Edit Title
+        </ContextMenuListItem>
+      )}
+      {onResetHistory && (
+        <ContextMenuListItem
+          testId="reset-history-button"
+          onClick={onResetHistory}
+        >
+          {t(I18nKey.CONVERSATION$RESET_CHAT_HISTORY)}
         </ContextMenuListItem>
       )}
       {onDownloadViaVSCode && (
