@@ -19,6 +19,7 @@ import OpenHands from "#/api/open-hands";
 import { useWsClient } from "#/context/ws-client-provider";
 import { isSystemMessage } from "#/types/core/guards";
 import { ConversationStatus } from "#/types/conversation-status";
+import { useResetConversationHistory } from "#/hooks/mutation/use-reset-conversation-history";
 
 interface ConversationCardProps {
   onClick?: () => void;
@@ -61,12 +62,16 @@ export function ConversationCard({
   const [systemModalVisible, setSystemModalVisible] = React.useState(false);
   const [microagentsModalVisible, setMicroagentsModalVisible] =
     React.useState(false);
+  const [resetHistoryModalVisible, setResetHistoryModalVisible] =
+    React.useState(false);
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const systemMessage = parsedEvents.find(isSystemMessage);
 
   // Subscribe to metrics data from Redux store
   const metrics = useSelector((state: RootState) => state.metrics);
+
+  const { mutate: resetHistory } = useResetConversationHistory();
 
   const handleBlur = () => {
     if (inputRef.current?.value) {
@@ -151,6 +156,26 @@ export function ConversationCard({
     setMicroagentsModalVisible(true);
   };
 
+  const handleResetHistory = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setResetHistoryModalVisible(true);
+    setContextMenuVisible(false);
+  };
+
+  const handleConfirmResetHistory = () => {
+    if (conversationId) {
+      resetHistory(
+        { conversationId },
+        {
+          onSuccess: () => {
+            setResetHistoryModalVisible(false);
+          },
+        },
+      );
+    }
+  };
+
   React.useEffect(() => {
     if (titleMode === "edit") {
       inputRef.current?.focus();
@@ -225,6 +250,11 @@ export function ConversationCard({
                   onClose={() => setContextMenuVisible(false)}
                   onDelete={onDelete && handleDelete}
                   onEdit={onChangeTitle && handleEdit}
+                  onResetHistory={
+                    conversationId && showOptions
+                      ? handleResetHistory
+                      : undefined
+                  }
                   onDownloadViaVSCode={
                     conversationId && showOptions
                       ? handleDownloadViaVSCode
@@ -394,6 +424,36 @@ export function ConversationCard({
           conversationId={conversationId}
         />
       )}
+
+      <BaseModal
+        isOpen={resetHistoryModalVisible}
+        onOpenChange={setResetHistoryModalVisible}
+        title={t(I18nKey.CONVERSATION$RESET_CHAT_HISTORY)}
+        testID="reset-history-modal"
+      >
+        <div className="space-y-4">
+          <p className="text-sm">
+            {t(I18nKey.CONVERSATION$RESET_HISTORY_DESCRIPTION)}
+          </p>
+          <p className="text-sm text-neutral-400">
+            {t(I18nKey.CONVERSATION$RESET_HISTORY_NOTE)}
+          </p>
+          <div className="flex gap-2 justify-end mt-6">
+            <button
+              className="px-4 py-2 text-sm border border-neutral-600 rounded-md hover:bg-neutral-800"
+              onClick={() => setResetHistoryModalVisible(false)}
+            >
+              {t(I18nKey.COMMON$CANCEL)}
+            </button>
+            <button
+              className="px-4 py-2 text-sm bg-red-600 text-white rounded-md hover:bg-red-700"
+              onClick={handleConfirmResetHistory}
+            >
+              {t(I18nKey.CONVERSATION$RESET_CHAT_HISTORY)}
+            </button>
+          </div>
+        </div>
+      </BaseModal>
     </>
   );
 }

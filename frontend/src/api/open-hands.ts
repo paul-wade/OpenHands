@@ -254,6 +254,10 @@ class OpenHands {
     await openHands.delete(`/api/conversations/${conversationId}`);
   }
 
+  static async resetConversationHistory(conversationId: string): Promise<void> {
+    await openHands.post(`/api/conversations/${conversationId}/reset-history`);
+  }
+
   static async createConversation(
     selectedRepository?: string,
     git_provider?: Provider,
